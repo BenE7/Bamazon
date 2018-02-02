@@ -18,6 +18,15 @@ function Purchase (ID, quantity){
     this.quantity = quantity
 };
 
+function checkQuantity(answers, item){
+    if(answers.Quantity <= item.Stock_Quantity){
+        console.log("You're in luck! Your product is in stock!")
+    }else if(answers.Quantity > item.Stock_Quantity){
+        console.log("Sorry, our stock can not meet your needs.")
+    }
+
+};
+
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
@@ -31,19 +40,31 @@ function afterConnection() {
         
         inquirer.prompt([
             {
+                type: "input",
                 name: "Product",
                 message: "What is the ID of the product you would like to buy?"
             }, {
+                type: "input",
                 name: "Quantity",
                 message: "How many units of this product would you like to buy?"
 
             }
-        ]).then(answers => {
+
+        ]).then(function(answers){
+            for(var i=0; i<res.length; i++){
+                if (res[i].Item_ID == answers.Product){
+                    var item = res[i];
+                    return checkQuantity(answers, item);
+
+                }
+            }
+
             var newPurchase = new Purchase(
                 answers.Product,
                 answers.Quantity
-
+                
             )
+            
             console.log(newPurchase);
         });
         connection.end();
